@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seed Users — Sashainfinty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0f12;
+            color: #e4e4e7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: #1a1a23;
+            border: 1px solid #27272f;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 540px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+
+        p {
+            color: #a1a1aa;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #f97316, #ec4899);
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            width: 100%;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #log {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            background: #111118;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #27272f;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .success {
+            color: #22c55e;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .info {
+            color: #60a5fa;
+        }
+
+        .warn {
+            color: #f59e0b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        th,
+        td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #27272f;
+        }
+
+        th {
+            color: #a1a1aa;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>🔐 Seed Admin & HR Users</h1>
+        <p>This will create the following users in Firebase Auth and Firestore. Run this <strong>once</strong>.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Manager (Admin)</td>
+                    <td>admin@sashainfinity.com</td>
+                    <td>admin123</td>
+                </tr>
+                <tr>
+                    <td>HR</td>
+                    <td>hr@sashainfinity.com</td>
+                    <td>hr123</td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn" id="seedBtn" onclick="seedUsers()">🚀 Create Users</button>
+        <div id="log"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqpxxJk9ZnnqA-cevLNNSINi_N1eNsJVE",
+            authDomain: "sasha-attendance.firebaseapp.com",
+            projectId: "sasha-attendance",
+            storageBucket: "sasha-attendance.firebasestorage.app",
+            messagingSenderId: "877665920737",
+            appId: "1:877665920737:web:8ee1f32f908e27af6d39a0",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const SEED_USERS = [
+            {
+                email: 'admin@sashainfinity.com', password: 'admin123',
+                profile: { employee_code: 'EMP001', name: 'Admin User', role: 'manager', department: 'Management', employee_type: 'full-time' }
+            },
+            {
+                email: 'hr@sashainfinity.com', password: 'hr123',
+                profile: { employee_code: 'EMP002', name: 'HR Manager', role: 'hr', department: 'Human Resources', employee_type: 'full-time' }
+            }
+        ];
+
+        function log(msg, cls) {
+            const el = document.getElementById('log');
+            el.style.display = 'block';
+            el.innerHTML += `<span class="${cls}">${msg}</span>\n`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        async function seedUsers() {
+            const btn = document.getElementById('seedBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Creating...';
+
+            for (const u of SEED_USERS) {
+                try {
+                    log(`Creating ${u.profile.name} (${u.email})...`, 'info');
+                    const cred = await auth.createUserWithEmailAndPassword(u.email, u.password);
+                    const uid = cred.user.uid;
+
+                    // Save employee profile
+                    await db.collection('employees').doc(uid).set({
+                        ...u.profile,
+                        email: u.email,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                    });
+
+                    // Save default leave balance
+                    await db.collection('leave_balances').doc(uid).set({
+                        casual_left: 10, sick_left: 7, paid_left: 12, personal_left: 3
+                    });
+
+                    log(`✅ ${u.profile.name} created successfully (UID: ${uid})`, 'success');
+
+                    // Sign out so next user can be created
+                    await auth.signOut();
+
+                } catch (err) {
+                    if (err.code === 'auth/email-already-in-use') {
+                        log(`⚠️ ${u.email} already exists — skipping`, 'warn');
+                    } else {
+                        log(`❌ Error creating ${u.email}: ${err.message}`, 'error');
+                    }
+                }
+            }
+
+            log('\n🎉 Done! You can now close this page and log in at index.html', 'success');
+            btn.textContent = '✅ Done';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sashainfinty - Attendance Management</title>
+    <meta name="description" content="Sashainfinty Attendance & Leave Management System" />
+    <link rel="icon" href="assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div id="app"></div>
+    <div id="toast-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <script src="api.js"></script>
+    <script src="pages/login.js"></script>
+    <script src="pages/dashboard.js"></script>
+    <script src="pages/attendance.js"></script>
+    <script src="pages/leave.js"></script>
+    <script src="pages/admin-employees.js"></script>
+    <script src="pages/admin-reports.js"></script>
+    <script src="pages/employee-profile.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
